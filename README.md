@@ -2,7 +2,9 @@ HMC5883L - 3-Axis Digital Compass IC
 ---------------------------------------------------------
 
 ### initial HMC5883L sensor
-扫描设备并设置参数
+
+scan hmc5883l device and initial it
+
     bool begin(void);
 
 
