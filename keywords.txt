@@ -5,7 +5,7 @@
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
-DFRobot_HMC5883L	KEYWORD1
+DFRobot_QMC5883	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)

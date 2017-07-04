@@ -1,9 +1,9 @@
-HMC5883L - 3-Axis Digital Compass IC
+QMC5883L - 3-Axis Digital Compass IC (Compatible with HMC5883L)
 ---------------------------------------------------------
 
-### initial HMC5883L sensor
+### initial QMC5883L sensor
 
-scan hmc5883l device and initial it
+scan and initial QMC5883l device 
 
     bool begin(void);
 

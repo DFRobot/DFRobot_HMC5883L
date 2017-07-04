@@ -1,6 +1,6 @@
 /*!
- * @file DFRobot_HMC5883L.cpp
- * @brief Compatible with HMC5883L and QMC5883
+ * @file DFRobot_QMC5883.cpp
+ * @brief Compatible with QMC5883 and QMC5883
  * @n 3-Axis Digital Compass IC
  *
  * @copyright	[DFRobot](http://www.dfrobot.com), 2017
@@ -19,16 +19,16 @@
 
 #include <Wire.h>
 
-#include "DFRobot_HMC5883L.h"
+#include "DFRobot_QMC5883.h"
 
 
 
-bool DFRobot_HMC5883L::begin()
+bool DFRobot_QMC5883::begin()
 {
-	delay(5000);
-    Wire.begin();	
-	Wire.beginTransmission(HMC5883L_ADDRESS);
-    flagHmc_ = Wire.endTransmission();
+  delay(5000);
+  Wire.begin();	
+  Wire.beginTransmission(HMC5883L_ADDRESS);
+  flagHmc_ = Wire.endTransmission();
 	Serial.print("flagHmc_= ");
 	Serial.println(flagHmc_);
 	
@@ -45,50 +45,47 @@ bool DFRobot_HMC5883L::begin()
     setSamples(HMC5883L_SAMPLES_1);
     mgPerDigit = 0.92f;
     return true;
-	}else if(flagHmc_){
-	  	  
-	Wire.begin();
-	Wire.beginTransmission(QMC5883L_ADDRESS);
+	}else if(flagHmc_){	  
+    Wire.begin();
+    Wire.beginTransmission(HMC5883L_ADDRESS);
     flagQmc_ = Wire.endTransmission(); 
-	Serial.print("flagQmc_= ");
-	Serial.println(flagQmc_);
+    Serial.print("flagQmc_= ");
+    Serial.println(flagQmc_);
     if(!flagQmc_){
-	if ((fastRegister8(HMC5883L_REG_IDENT_B_Q) != 0x00)
-    || (fastRegister8(HMC5883L_REG_IDENT_C_Q) != 0x01)
-    || (fastRegister8(HMC5883L_REG_IDENT_D_Q) != 0xFF)){
-	  return false;
-    }
-	
-    setRange(HMC5883L_RANGE_8GA);
-    setMeasurementMode(HMC5883L_CONTINOUS_Q);
-    setDataRate(HMC5883L_DATARATE_50HZ);
-    setSamples(HMC5883L_SAMPLES_8);
-	mgPerDigit = 4.25f;
+      if ((fastRegister8(QMC5883_REG_IDENT_B) != 0x00)
+        || (fastRegister8(QMC5883_REG_IDENT_C) != 0x01)
+        || (fastRegister8(QMC5883_REG_IDENT_D) != 0xFF)){
+        return false;
+      }
+    
+      setRange(QMC5883_RANGE_8GA);
+      setMeasurementMode(QMC5883_CONTINOUS);
+      setDataRate(QMC5883_DATARATE_50HZ);
+      setSamples(QMC5883_SAMPLES_8);
+      mgPerDigit = 4.25f;
 
-    return true;
-	}
+      return true;
+    }
   }
 }
 
-Vector DFRobot_HMC5883L::readRaw(void)
+Vector DFRobot_QMC5883::readRaw(void)
 {
 	if(!flagHmc_){
     v.XAxis = readRegister16(HMC5883L_REG_OUT_X_M) - xOffset;
     v.YAxis = readRegister16(HMC5883L_REG_OUT_Y_M) - yOffset;
     v.ZAxis = readRegister16(HMC5883L_REG_OUT_Z_M);
-
     return v;
-    }else if(!flagQmc_){
-	v.XAxis = readRegister16(HMC5883L_REG_OUT_X_M_Q) - xOffset;
-    v.YAxis = readRegister16(HMC5883L_REG_OUT_Y_M_Q) - yOffset;
-    v.ZAxis = readRegister16(HMC5883L_REG_OUT_Z_M_Q);
-
+  }else if(!flagQmc_){
+    v.XAxis = readRegister16(QMC5883_REG_OUT_X_M) - xOffset;
+    v.YAxis = readRegister16(QMC5883_REG_OUT_Y_M) - yOffset;
+    v.ZAxis = readRegister16(QMC5883_REG_OUT_Z_M);
     return v;
   }
 	
 }
 
-Vector DFRobot_HMC5883L::readNormalize(void)
+Vector DFRobot_QMC5883::readNormalize(void)
 {
 	if(!flagHmc_){	
     v.XAxis = ((float)readRegister16(HMC5883L_REG_OUT_X_M) - xOffset) * mgPerDigit;
@@ -96,21 +93,21 @@ Vector DFRobot_HMC5883L::readNormalize(void)
     v.ZAxis = (float)readRegister16(HMC5883L_REG_OUT_Z_M) * mgPerDigit;
     return v;
   }else if(!flagQmc_){
-	  v.XAxis = ((float)readRegister16(HMC5883L_REG_OUT_X_M_Q) - xOffset) * mgPerDigit;
-    v.YAxis = ((float)readRegister16(HMC5883L_REG_OUT_Y_M_Q) - yOffset) * mgPerDigit;
-    v.ZAxis = (float)readRegister16(HMC5883L_REG_OUT_Z_M_Q) * mgPerDigit;
+	  v.XAxis = ((float)readRegister16(QMC5883_REG_OUT_X_M) - xOffset) * mgPerDigit;
+    v.YAxis = ((float)readRegister16(QMC5883_REG_OUT_Y_M) - yOffset) * mgPerDigit;
+    v.ZAxis = (float)readRegister16(QMC5883_REG_OUT_Z_M) * mgPerDigit;
     return v;
 	}
 	
 }
 
-void DFRobot_HMC5883L::setOffset(int xo, int yo)
+void DFRobot_QMC5883::setOffset(int xo, int yo)
 {
     xOffset = xo;
     yOffset = yo;
 }
 
-void DFRobot_HMC5883L::setRange(hmc5883l_range_t range)
+void DFRobot_QMC5883::setRange(QMC5883_range_t range)
 {
   if(!flagHmc_){
     switch(range){
@@ -151,38 +148,35 @@ void DFRobot_HMC5883L::setRange(hmc5883l_range_t range)
     }
 
     writeRegister8(HMC5883L_REG_CONFIG_B, range << 5);
-	
-    }else if(!flagQmc_){
+  }else if(!flagQmc_){
     switch(range)
     {
-    case HMC5883L_RANGE_2GA:
-	    mgPerDigit = 1.22f;
-	    break;
-    case HMC5883L_RANGE_8GA:
-	    mgPerDigit = 4.35f;
-	    break;
-
+    case QMC5883_RANGE_2GA:
+      mgPerDigit = 1.22f;
+      break;
+    case QMC5883_RANGE_8GA:
+      mgPerDigit = 4.35f;
+      break;
     default:
-	    break;
+      break;
     }
 
-    writeRegister8(HMC5883L_REG_CONFIG_2_Q, range << 4);
+    writeRegister8(QMC5883_REG_CONFIG_2, range << 4);
 	}
 }
 
-hmc5883l_range_t DFRobot_HMC5883L::getRange(void)
+QMC5883_range_t DFRobot_QMC5883::getRange(void)
 {
-    if(!flagHmc_){
-	
-    return (hmc5883l_range_t)((readRegister8(HMC5883L_REG_CONFIG_B) >> 5));
-    }else if(!flagQmc_){
-	return (hmc5883l_range_t)((readRegister8(HMC5883L_REG_CONFIG_2_Q) >> 3));
-}
+  if(!flagHmc_){
+    return (QMC5883_range_t)((readRegister8(HMC5883L_REG_CONFIG_B) >> 5));
+  }else if(!flagQmc_){
+    return (QMC5883_range_t)((readRegister8(QMC5883_REG_CONFIG_2) >> 3));
+  }
 }
 
-void DFRobot_HMC5883L::setMeasurementMode(hmc5883l_mode_t mode)
+void DFRobot_QMC5883::setMeasurementMode(QMC5883_mode_t mode)
 {
-if(!flagHmc_){
+  if(!flagHmc_){
     uint8_t value;
 
     value = readRegister8(HMC5883L_REG_MODE);
@@ -190,83 +184,98 @@ if(!flagHmc_){
     value |= mode;
 
     writeRegister8(HMC5883L_REG_MODE, value);
-}else if(!flagQmc_){
-uint8_t value;
+  }else if(!flagQmc_){
+    uint8_t value;
 
-    value = readRegister8(HMC5883L_REG_CONFIG_1_Q);
+    value = readRegister8(QMC5883_REG_CONFIG_1);
     value &= 0xfc;
     value |= mode;
 
-    writeRegister8(HMC5883L_REG_CONFIG_1_Q, value);
+    writeRegister8(QMC5883_REG_CONFIG_1, value);
 	}	
 }
 
-hmc5883l_mode_t DFRobot_HMC5883L::getMeasurementMode(void)
+QMC5883_mode_t DFRobot_QMC5883::getMeasurementMode(void)
 {
-	uint8_t value;
-
+  uint8_t value;
+  if(!flagHmc_){
     value = readRegister8(HMC5883L_REG_MODE);
-    value &= 0b00000011;
-
-    return (hmc5883l_mode_t)value;	
+  }else{
+    value = readRegister8(QMC5883_REG_CONFIG_1); 
+  }
+  value &= 0b00000011;  
+  return (QMC5883_mode_t)value;	
 }
 
-void DFRobot_HMC5883L::setDataRate(hmc5883l_dataRate_t dataRate)
-{
-    if(!flagHmc_){
-      uint8_t value;
-
-      value = readRegister8(HMC5883L_REG_CONFIG_A);
-      value &= 0b11100011;
-      value |= (dataRate << 2);
-
-      writeRegister8(HMC5883L_REG_CONFIG_A, value);
-    }else if(!flagQmc_){
-      uint8_t value;
-
-      value = readRegister8(HMC5883L_REG_CONFIG_1_Q);
-      value &= 0xf3;
-      value |= (dataRate << 2);
-
-      writeRegister8(HMC5883L_REG_CONFIG_1_Q, value);
-	}
-}
-
-hmc5883l_dataRate_t DFRobot_HMC5883L::getDataRate(void)
-{
-    uint8_t value;
-
-    value = readRegister8(HMC5883L_REG_CONFIG_A);
-    value &= 0b00011100;
-    value >>= 2;
-    return (hmc5883l_dataRate_t)value;
-}
-void DFRobot_HMC5883L::setSamples(hmc5883l_samples_t samples)
+void DFRobot_QMC5883::setDataRate(QMC5883_dataRate_t dataRate)
 {
   if(!flagHmc_){
     uint8_t value;
+
+    value = readRegister8(HMC5883L_REG_CONFIG_A);
+    value &= 0b11100011;
+    value |= (dataRate << 2);
+
+    writeRegister8(HMC5883L_REG_CONFIG_A, value);
+  }else if(!flagQmc_){
+    uint8_t value;
+
+    value = readRegister8(QMC5883_REG_CONFIG_1);
+    value &= 0xf3;
+    value |= (dataRate << 2);
+
+    writeRegister8(QMC5883_REG_CONFIG_1, value);
+	}
+}
+
+QMC5883_dataRate_t DFRobot_QMC5883::getDataRate(void)
+{
+  uint8_t value;
+  if(!flagHmc_){
+    value = readRegister8(HMC5883L_REG_CONFIG_A);
+    value &= 0b00011100;
+    value >>= 2;
+  }else if(!flagQmc_){
+    value = readRegister8(QMC5883_REG_CONFIG_1);
+    value &= 0xf3;
+    value >>2;
+  }
+  return (QMC5883_dataRate_t)value;
+}
+
+void DFRobot_QMC5883::setSamples(QMC5883_samples_t samples)
+{
+  uint8_t value;
+  if(!flagHmc_){
     value = readRegister8(HMC5883L_REG_CONFIG_A);
     value &= 0b10011111;
     value |= (samples << 5);
     writeRegister8(HMC5883L_REG_CONFIG_A, value);
   }else if(!flagQmc_){
-    uint8_t value;
-    value = readRegister8(HMC5883L_REG_CONFIG_1_Q);
+    value = readRegister8(QMC5883_REG_CONFIG_1);
     value &= 0x3f;
-    value |= (samples << 7);
-    writeRegister8(HMC5883L_REG_CONFIG_1_Q, value);
+    value |= (samples << 6);
+    writeRegister8(QMC5883_REG_CONFIG_1, value);
   }
 }
-hmc5883l_samples_t DFRobot_HMC5883L::getSamples(void)
+
+QMC5883_samples_t DFRobot_QMC5883::getSamples(void)
 {
-    uint8_t value;
+  uint8_t value;
+  if(!flagHmc_){
     value = readRegister8(HMC5883L_REG_CONFIG_A);
     value &= 0b01100000;
     value >>= 5;
-    return (hmc5883l_samples_t)value;
+  }else if(!flagQmc_){
+    value = readRegister8(QMC5883_REG_CONFIG_1);
+    value &= 0x3f;
+    value >>= 6;
+  }
+  return (QMC5883_samples_t)value;
 }
+
 // Write byte to register
-void DFRobot_HMC5883L::writeRegister8(uint8_t reg, uint8_t value)
+void DFRobot_QMC5883::writeRegister8(uint8_t reg, uint8_t value)
 {
   if(!flagHmc_){
     Wire.beginTransmission(HMC5883L_ADDRESS);
@@ -279,7 +288,7 @@ void DFRobot_HMC5883L::writeRegister8(uint8_t reg, uint8_t value)
     #endif
     Wire.endTransmission();
   }else if(!flagQmc_){
-    Wire.beginTransmission(QMC5883L_ADDRESS);
+    Wire.beginTransmission(QMC5883_ADDRESS);
     #if ARDUINO >= 100
         Wire.write(reg);
         Wire.write(value);
@@ -291,7 +300,7 @@ void DFRobot_HMC5883L::writeRegister8(uint8_t reg, uint8_t value)
 	}
 }
 // Read byte to register
-uint8_t DFRobot_HMC5883L::fastRegister8(uint8_t reg)
+uint8_t DFRobot_QMC5883::fastRegister8(uint8_t reg)
 {
 	if(!flagHmc_){
     uint8_t value;
@@ -314,14 +323,14 @@ uint8_t DFRobot_HMC5883L::fastRegister8(uint8_t reg)
     return value;
 	}else if(!flagQmc_){
 		 uint8_t value;
-    Wire.beginTransmission(QMC5883L_ADDRESS);
+    Wire.beginTransmission(QMC5883_ADDRESS);
     #if ARDUINO >= 100
         Wire.write(reg);
     #else
         Wire.send(reg);
     #endif
     Wire.endTransmission();
-    Wire.requestFrom(QMC5883L_ADDRESS, 1);
+    Wire.requestFrom(QMC5883_ADDRESS, 1);
     #if ARDUINO >= 100
         value = Wire.read();
     #else
@@ -333,7 +342,7 @@ uint8_t DFRobot_HMC5883L::fastRegister8(uint8_t reg)
 }
 
 // Read byte from register
-uint8_t DFRobot_HMC5883L::readRegister8(uint8_t reg)
+uint8_t DFRobot_QMC5883::readRegister8(uint8_t reg)
 {
 	if(!flagHmc_){
     uint8_t value;
@@ -358,15 +367,15 @@ uint8_t DFRobot_HMC5883L::readRegister8(uint8_t reg)
     return value;
 	}else if(!flagQmc_){
     uint8_t value;
-    Wire.beginTransmission(QMC5883L_ADDRESS);
+    Wire.beginTransmission(QMC5883_ADDRESS);
     #if ARDUINO >= 100
         Wire.write(reg);
     #else
         Wire.send(reg);
     #endif
     Wire.endTransmission();
-    Wire.beginTransmission(QMC5883L_ADDRESS);
-    Wire.requestFrom(QMC5883L_ADDRESS, 1);
+    Wire.beginTransmission(QMC5883_ADDRESS);
+    Wire.requestFrom(QMC5883_ADDRESS, 1);
     while(!Wire.available()) {};
     #if ARDUINO >= 100
         value = Wire.read();
@@ -379,7 +388,7 @@ uint8_t DFRobot_HMC5883L::readRegister8(uint8_t reg)
 	}
 }
 // Read word from register
-int16_t DFRobot_HMC5883L::readRegister16(uint8_t reg)
+int16_t DFRobot_QMC5883::readRegister16(uint8_t reg)
 {
 	if(!flagHmc_){	
     int16_t value;
@@ -405,15 +414,15 @@ int16_t DFRobot_HMC5883L::readRegister16(uint8_t reg)
     return value;
 	}else if(!flagQmc_){
 		  int16_t value;
-    Wire.beginTransmission(QMC5883L_ADDRESS);
+    Wire.beginTransmission(QMC5883_ADDRESS);
     #if ARDUINO >= 100
         Wire.write(reg);
     #else
         Wire.send(reg);
     #endif
     Wire.endTransmission();
-    Wire.beginTransmission(QMC5883L_ADDRESS);
-    Wire.requestFrom(QMC5883L_ADDRESS, 2);
+    Wire.beginTransmission(QMC5883_ADDRESS);
+    Wire.requestFrom(QMC5883_ADDRESS, 2);
     while(!Wire.available()) {};
     #if ARDUINO >= 100
         uint8_t vha = Wire.read();
@@ -428,7 +437,7 @@ int16_t DFRobot_HMC5883L::readRegister16(uint8_t reg)
 	}
 }
 
-void DFRobot_HMC5883L::calibrate(int* offX, int* offY)
+void DFRobot_QMC5883::calibrate(int* offX, int* offY)
 {
   static int minX = 0;
   static int maxX = 0;

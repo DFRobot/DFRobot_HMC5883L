@@ -1,6 +1,6 @@
 /*!
- * @file HMC5883L_calibrate.cpp
- * @brief calibrate your HMC5883L
+ * @file QMC5883_calibrate.cpp
+ * @brief calibrate your QMC5883
  * @n 3-Axis Digital Compass IC
  *
  * @copyright	[DFRobot](http://www.dfrobot.com), 2017
@@ -12,9 +12,9 @@
  */
 
 #include <Wire.h>
-#include <DFRobot_HMC5883L.h>
+#include <DFRobot_QMC5883.h>
 
-DFRobot_HMC5883L compass;
+DFRobot_QMC5883 compass;
 
 int minX = 0;
 int maxX = 0;
@@ -27,26 +27,26 @@ void setup()
 {
   Serial.begin(9600);
 
-  // Initialize Initialize HMC5883L
+  // Initialize Initialize QMC5883
   while (!compass.begin())
   {
     delay(500);
   }
 
   // Set measurement range
-  //compass.setRange(HMC5883L_RANGE_1_3GA);           //HMC5883L API
-  //compass.setRange(HMC5883L_RANGE_2GA);			        //QMC5883L API
+  //compass.setRange(QMC5883_RANGE_1_3GA);           //HMC5883L API
+  //compass.setRange(QMC5883_RANGE_2GA);			        //QMC5883 API
 
   // Set measurement mode
-  //compass.setMeasurementMode(HMC5883L_CONTINOUS);   //HMC5883L API
-  //compass.setMeasurementMode(HMC5883L_CONTINOUS_Q);	//QMC5883L API	
+  //compass.setMeasurementMode(QMC5883_CONTINOUS);   //HMC5883L API
+  //compass.setMeasurementMode(QMC5883_CONTINOUS_Q);	//QMC5883 API	
 
   // Set data rate
-  //compass.setDataRate(HMC5883L_DATARATE_30HZ);      //HMC5883L API	
-  //compass.setDataRate(HMC5883L_DATARATE_50HZ);		  //QMC5883L API	
+  //compass.setDataRate(QMC5883_DATARATE_30HZ);      //HMC5883L API	
+  //compass.setDataRate(QMC5883_DATARATE_50HZ);		  //QMC5883 API	
 
   // Set number of samples averaged
-  compass.setSamples(HMC5883L_SAMPLES_8);
+  compass.setSamples(QMC5883_SAMPLES_8);
 }
 
 void loop()
